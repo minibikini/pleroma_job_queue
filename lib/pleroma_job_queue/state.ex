@@ -2,7 +2,7 @@ defmodule PleromaJobQueue.State do
   @moduledoc """
   A queue state
   """
-  
+
   defstruct queues: %{}, refs: %{}
 
   @type t :: %__MODULE__{
