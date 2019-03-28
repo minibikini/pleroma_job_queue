@@ -29,10 +29,8 @@ config :pleroma_job_queue,
 
 [See documentation](http://hexdocs.pm/pleroma_job_queue)
 
-## Contibuting
+## Copyright and License
 
-TBD
+Copyright © 2017-2019 [Pleroma Authors](https://pleroma.social/)
 
-## License
-
-TBD
+Pleroma Job Queue source code is licensed under the AGPLv3 License.
