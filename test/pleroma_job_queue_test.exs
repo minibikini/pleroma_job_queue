@@ -73,7 +73,7 @@ defmodule PleromaJobQueueTest do
            """
   end
 
-  test "PleromaJobQueue install version check" do
+  test "lib/pleroma_job_queue.ex install version check" do
     app = Keyword.get(Mix.Project.config(), :app)
     app_version = app |> Application.spec(:vsn) |> to_string()
 
@@ -85,9 +85,9 @@ defmodule PleromaJobQueueTest do
              readme_versions
            ),
            """
-           Install version constraint in PleromaJobQueue.ex does not match to current app version.
+           Install version constraint in `lib/pleroma_job_queue.ex` does not match to current app version.
            Current App Version: #{app_version}
-           PleromaJobQueue Install Versions: #{readme_versions}
+           `lib/pleroma_job_queue.ex` Install Versions: #{readme_versions}
            """
   end
 
