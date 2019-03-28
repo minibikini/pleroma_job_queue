@@ -12,11 +12,11 @@ defmodule PleromaJobQueue.MixProject do
       # Docs
       name: "PleromaJobQueue",
       source_url: "https://git.pleroma.social/pleroma/pleroma_job_queue",
-      source_url_pattern:
-        "https://git.pleroma.social/pleroma/pleroma_job_queue/blob/master/%{path}#L%{line}",
       homepage_url: "https://git.pleroma.social/pleroma/pleroma_job_queue",
       docs: [
-        main: "PleromaJobQueue"
+        main: "PleromaJobQueue",
+        source_url_pattern:
+          "https://git.pleroma.social/pleroma/pleroma_job_queue/blob/master/%{path}#L%{line}"
       ]
     ]
   end
