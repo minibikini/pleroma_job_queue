@@ -16,14 +16,13 @@ end
 
 ## Configuration
 
-You need list your queues with max concurrent jobs, like this:
+You need to list your queues with max concurrent jobs like this:
 
 ```elixir
 config :pleroma_job_queue,
   my_queue: 100,
   another_queue: 50
 ```
-
 
 ## Usage
 

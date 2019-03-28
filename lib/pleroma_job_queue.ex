@@ -20,7 +20,7 @@ defmodule PleromaJobQueue do
 
   ## Configuration
 
-  You need list your queues with max concurrent jobs, like this:
+  You need to list your queues with max concurrent jobs like this:
 
   ```elixir
   config :pleroma_job_queue,
