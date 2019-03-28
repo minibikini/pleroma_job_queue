@@ -7,8 +7,8 @@ defmodule PleromaJobQueue.WorkerTest do
 
   defmodule(TestWorker, do: def(perform(:test_job, _, _), do: :ok))
 
-  alias PleromaJobQueue.Worker
   alias PleromaJobQueue.State
+  alias PleromaJobQueue.Worker
 
   @queue_name :testing
 
