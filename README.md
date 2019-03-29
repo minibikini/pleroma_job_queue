@@ -1,6 +1,6 @@
 # 🗳 Pleroma Job Queue
 
-> A lightweight job queue.
+> A lightweight job queue
 
 ## Installation
 
