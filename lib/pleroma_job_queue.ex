@@ -76,8 +76,8 @@ defmodule PleromaJobQueue do
   Returns a maximum concurrent jobs for a given queue name.
   """
 
-  @spec max_jobs(atom()) :: non_neg_integer()
+  @spec max_jobs(atom()) :: non_neg_integer() | nil
   def max_jobs(queue_name) do
-    Application.get_env(:pleroma_job_queue, queue_name, 0)
+    Application.get_env(:pleroma_job_queue, queue_name)
   end
 end

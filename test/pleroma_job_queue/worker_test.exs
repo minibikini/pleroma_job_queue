@@ -21,11 +21,13 @@ defmodule PleromaJobQueue.WorkerTest do
     [state: state]
   end
 
-  test "creates queue" do
-    queue = Worker.create_queue(:foobar)
+  test "create_queue/1" do
+    {running_jobs, queue} = Worker.create_queue(:foobar)
 
-    assert {:foobar, set} = queue
-    assert :set == set |> elem(0) |> elem(0)
+    assert queue == []
+    assert :sets.is_set(running_jobs)
+    assert :sets.is_empty(running_jobs)
+    assert PleromaJobQueue.max_jobs(:foobar) == 1
   end
 
   test "enqueues an element according to priority" do
