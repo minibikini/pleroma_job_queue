@@ -10,6 +10,7 @@ defmodule PleromaJobQueueTest do
 
     def perform, do: send(pid(), {:test, :no_args})
     def perform(:skip), do: nil
+    def perform(:sync), do: :sync
     def perform(:test_job), do: send(pid(), :test_job)
     def perform(:test_job, a, b), do: send(pid(), {:test_job, {a, b}})
     def perform(:priority, priority), do: send(pid(), {:priority, priority})
@@ -33,6 +34,12 @@ defmodule PleromaJobQueueTest do
   test "max_jobs/1" do
     assert Application.get_env(:pleroma_job_queue, @queue_name, 1) ==
              PleromaJobQueue.max_jobs(@queue_name)
+  end
+
+  test "disable" do
+    Application.put_env(:pleroma_job_queue, :disabled, true)
+    assert :sync == PleromaJobQueue.enqueue(@queue_name, Worker, [:sync])
+    Application.put_env(:pleroma_job_queue, :disabled, false)
   end
 
   test "priority" do

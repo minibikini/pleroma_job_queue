@@ -23,11 +23,16 @@ defmodule PleromaJobQueue do
   List your queues with max concurrent jobs like this:
 
   ```elixir
-  config :pleroma_job_queue, queues:
+  config :pleroma_job_queue, :queues,
     my_queue: 100,
     another_queue: 50
   ```
 
+  You can disable `pleroma_job_queue` if you need to your jobs synchronously:
+
+  ```elixir
+  config :pleroma_job_queue, disabled: true
+  ```
   """
 
   @doc """
@@ -67,9 +72,13 @@ defmodule PleromaJobQueue do
 
   """
 
-  @spec enqueue(atom(), module(), [any()], non_neg_integer()) :: :ok
+  @spec enqueue(atom(), module(), [any()], non_neg_integer()) :: any()
   def enqueue(queue_name, mod, args \\ [], priority \\ 1) do
-    GenServer.cast(PleromaJobQueue.Worker, {:enqueue, queue_name, mod, args, priority})
+    if enabled?() do
+      GenServer.cast(PleromaJobQueue.Worker, {:enqueue, queue_name, mod, args, priority})
+    else
+      apply(mod, :perform, args)
+    end
   end
 
   @doc """
@@ -82,4 +91,6 @@ defmodule PleromaJobQueue do
     |> Application.get_env(:queues, [])
     |> Keyword.get(queue_name, 1)
   end
+
+  defp enabled?(), do: not Application.get_env(:pleroma_job_queue, :disabled, false)
 end
