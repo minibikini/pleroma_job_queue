@@ -77,7 +77,7 @@ defmodule PleromaJobQueue.Worker do
   end
 
   @spec create_queue() :: {State.running_jobs(), State.queue()}
-  def create_queue() do
+  def create_queue do
     {:sets.new(), []}
   end
 
