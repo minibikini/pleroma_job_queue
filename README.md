@@ -13,7 +13,7 @@ Add `pleroma_job_queue` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:pleroma_job_queue, "~> 0.1.0"}
+    {:pleroma_job_queue, "~> 0.2.0"}
   ]
 end
 ```
