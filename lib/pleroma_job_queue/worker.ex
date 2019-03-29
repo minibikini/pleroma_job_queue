@@ -20,8 +20,8 @@ defmodule PleromaJobQueue.Worker do
   def init(%State{queues: queues} = state) do
     queues =
       :pleroma_job_queue
-      |> Application.get_all_env()
-      |> Enum.map(fn {name, _} -> {name, create_queue(name)} end)
+      |> Application.get_env(:queues, [])
+      |> Enum.map(fn {name, _} -> {name, create_queue()} end)
       |> Enum.into(%{})
       |> Map.merge(queues)
 
@@ -30,7 +30,7 @@ defmodule PleromaJobQueue.Worker do
 
   @impl true
   def handle_cast({:enqueue, queue_name, mod, args, priority}, %State{queues: queues} = state) do
-    {running_jobs, queue} = Map.get(queues, queue_name, create_queue(queue_name))
+    {running_jobs, queue} = Map.get(queues, queue_name, create_queue())
 
     queue = enqueue_sorted(queue, {mod, args}, priority)
 
@@ -76,9 +76,8 @@ defmodule PleromaJobQueue.Worker do
     end
   end
 
-  @spec create_queue(atom()) :: {State.running_jobs(), State.queue()}
-  def create_queue(queue_name) do
-    unless max_jobs(queue_name), do: Application.put_env(:pleroma_job_queue, queue_name, 1)
+  @spec create_queue() :: {State.running_jobs(), State.queue()}
+  def create_queue() do
     {:sets.new(), []}
   end
 

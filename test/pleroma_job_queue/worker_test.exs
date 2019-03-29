@@ -14,7 +14,7 @@ defmodule PleromaJobQueue.WorkerTest do
 
   setup do
     state = %State{
-      queues: Enum.into([Worker.create_queue(@queue_name)], %{}),
+      queues: Enum.into([Worker.create_queue()], %{}),
       refs: %{}
     }
 
@@ -22,7 +22,7 @@ defmodule PleromaJobQueue.WorkerTest do
   end
 
   test "create_queue/1" do
-    {running_jobs, queue} = Worker.create_queue(:foobar)
+    {running_jobs, queue} = Worker.create_queue()
 
     assert queue == []
     assert :sets.is_set(running_jobs)

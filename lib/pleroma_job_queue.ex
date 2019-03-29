@@ -20,10 +20,10 @@ defmodule PleromaJobQueue do
 
   ## Configuration
 
-  You need to list your queues with max concurrent jobs like this:
+  List your queues with max concurrent jobs like this:
 
   ```elixir
-  config :pleroma_job_queue,
+  config :pleroma_job_queue, queues:
     my_queue: 100,
     another_queue: 50
   ```
@@ -76,8 +76,10 @@ defmodule PleromaJobQueue do
   Returns a maximum concurrent jobs for a given queue name.
   """
 
-  @spec max_jobs(atom()) :: non_neg_integer() | nil
+  @spec max_jobs(atom()) :: non_neg_integer()
   def max_jobs(queue_name) do
-    Application.get_env(:pleroma_job_queue, queue_name)
+    :pleroma_job_queue
+    |> Application.get_env(:queues, [])
+    |> Keyword.get(queue_name, 1)
   end
 end
