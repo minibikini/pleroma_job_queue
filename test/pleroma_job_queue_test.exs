@@ -4,6 +4,7 @@
 
 defmodule PleromaJobQueueTest do
   use ExUnit.Case
+  alias PleromaJobQueue.Scheduler
 
   defmodule Worker do
     defp pid, do: Application.get_env(:pleroma_job_queue, :test_pid)
@@ -29,6 +30,35 @@ defmodule PleromaJobQueueTest do
 
     assert :ok == PleromaJobQueue.enqueue(@queue_name, Worker, [:test_job, :foo, :bar])
     assert_receive {:test_job, {:foo, :bar}}
+  end
+
+  test "enqueue_at/5" do
+    set_pid()
+
+    future = :os.system_time(:millisecond) + :timer.seconds(4)
+    past = :os.system_time(:millisecond) - :timer.seconds(4)
+    :ok = PleromaJobQueue.enqueue_at(future, @queue_name, Worker, [:test_job, :future, :bar])
+    :ok = PleromaJobQueue.enqueue_at(past, @queue_name, Worker, [:test_job, :past, :bar])
+    pid = Process.whereis(Scheduler)
+    Process.send(pid, :poll, [])
+
+    refute_receive {:test_job, {:future, :bar}}
+    assert_receive {:test_job, {:past, :bar}}
+  end
+
+  test "enqueue_in/5" do
+    set_pid()
+
+    offset1 = :timer.seconds(4)
+    offset2 = :timer.seconds(14)
+    :ok = PleromaJobQueue.enqueue_in(offset1, @queue_name, Worker, [:test_job, :foo, :bar1])
+    :ok = PleromaJobQueue.enqueue_in(offset2, @queue_name, Worker, [:test_job, :foo, :bar2])
+    pid = Process.whereis(Scheduler)
+    Process.send(pid, :poll, [])
+
+    result = Scheduler.get_all() |> Enum.map(&elem(&1, 1).args)
+    assert [:test_job, :foo, :bar1] in result
+    assert [:test_job, :foo, :bar2] in result
   end
 
   test "max_jobs/1" do
