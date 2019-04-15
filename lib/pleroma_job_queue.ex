@@ -28,7 +28,7 @@ defmodule PleromaJobQueue do
     another_queue: 50
   ```
 
-  You can disable `pleroma_job_queue` if you need to your jobs synchronously:
+  You can disable `pleroma_job_queue` if you need to run your jobs synchronously:
 
   ```elixir
   config :pleroma_job_queue, disabled: true
