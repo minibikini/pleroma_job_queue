@@ -29,7 +29,7 @@ defmodule PleromaJobQueue.Scheduler do
   @impl true
   def init(_) do
     with true <- PleromaJobQueue.enabled?() and enabled?(),
-         {:ok, state} = @store.init([]) do
+         {:ok, state} <- @store.init([]) do
       schedule_next(:poll)
       {:ok, state}
     else
