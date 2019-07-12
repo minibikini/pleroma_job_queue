@@ -97,6 +97,13 @@ defmodule PleromaJobQueue do
     end
   end
 
+  def schedule(schedule, queue, mod, args \\ [], priority \\ 1) do
+    with {:ok, %Crontab.CronExpression{} = cron_expr} <-
+           Crontab.CronExpression.Parser.parse(schedule) do
+      send(PleromaJobQueue.Worker, {:schedule, cron_expr, queue, mod, args, priority})
+    end
+  end
+
   @doc """
   Schedules a job to be enqueued at specific time in the future.
 

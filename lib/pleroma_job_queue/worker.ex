@@ -25,6 +25,17 @@ defmodule PleromaJobQueue.Worker do
       |> Enum.into(%{})
       |> Map.merge(queues)
 
+    :pleroma_job_queue
+    |> Application.get_env(:schedule, [])
+    |> Enum.each(fn {queue, %{cron_expr: cron_expr_unparsed, module: mod} = params} ->
+      with %Crontab.CronExpression{} = cron_expr <-
+             Crontab.CronExpression.Parser.parse(cron_expr_unparsed) do
+        args = Map.get(params, :args, [])
+        priority = Map.get(params, :priority, 1)
+        send(self(), {:schedule, cron_expr, queue, mod, args, priority})
+      end
+    end)
+
     {:ok, %State{state | queues: queues}}
   end
 
@@ -38,6 +49,34 @@ defmodule PleromaJobQueue.Worker do
       state
       |> update_queue(queue_name, {running_jobs, queue})
       |> maybe_start_job(queue_name, running_jobs, queue)
+
+    {:noreply, state}
+  end
+
+  def handle_info(
+        {:schedule, %Crontab.CronExpression{} = cron_expr, queue, mod, args, priority},
+        state
+      ) do
+    next_run_date = Crontab.Scheduler.get_next_run_date(cron_expr)
+    interval = NaiveDateTime.diff(next_run_date, NaiveDateTime.utc_now())
+
+    Process.send_after(
+      self(),
+      {:enqueue_scheduled, queue, mod, args, priority, interval},
+      interval
+    )
+
+    {:noreply, state}
+  end
+
+  def handle_info({:enqueue_scheduled, queue, mod, args, priority, interval}, state) do
+    GenServer.cast(self(), {:enqueue, queue, mod, args, priority})
+
+    Process.send_after(
+      self(),
+      {:enqueue_scheduled, queue, mod, args, priority, interval},
+      interval
+    )
 
     {:noreply, state}
   end
