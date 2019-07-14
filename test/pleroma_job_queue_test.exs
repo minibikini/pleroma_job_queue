@@ -6,6 +6,8 @@ defmodule PleromaJobQueueTest do
   use ExUnit.Case
   alias PleromaJobQueue.Scheduler
 
+  import Mock
+
   defmodule Worker do
     defp pid, do: Application.get_env(:pleroma_job_queue, :test_pid)
 
@@ -90,6 +92,21 @@ defmodule PleromaJobQueueTest do
 
     assert_receive {:priority, priority}
     assert priority == 1
+  end
+
+  test "schedule" do
+    set_pid()
+
+    get_next_run_date_mock = [
+      get_next_run_date: fn _cron_expr ->
+        NaiveDateTime.add(NaiveDateTime.utc_now(), 1, :second)
+      end
+    ]
+
+    with_mock Crontab.Scheduler, get_next_run_date_mock do
+      PleromaJobQueue.schedule("* * * * *", @queue_name, Worker)
+      assert_receive {:test, :no_args}, 1_500
+    end
   end
 
   defp set_pid, do: Application.put_env(:pleroma_job_queue, :test_pid, self())

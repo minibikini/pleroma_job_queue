@@ -5,6 +5,8 @@
 defmodule PleromaJobQueue.WorkerTest do
   use ExUnit.Case
 
+  import Mock
+
   defmodule(TestWorker, do: def(perform(:test_job, _, _), do: :ok))
 
   alias PleromaJobQueue.State
@@ -94,5 +96,43 @@ defmodule PleromaJobQueue.WorkerTest do
              Worker.handle_info({:DOWN, ref, :process, nil, nil}, new_state)
 
     assert :sets.size(running_jobs) == 0
+  end
+
+  defmodule ScheduledWorker do
+    def perform(pid) do
+      send(pid, :executing)
+    end
+  end
+
+  describe "Scheduling" do
+    setup do
+      Application.stop(:pleroma_job_queue)
+
+      schedule = [
+        test_queue: %{
+          cron_expr: "* * * * *",
+          module: __MODULE__.ScheduledWorker,
+          args: [self()]
+        }
+      ]
+
+      Application.put_env(:pleroma_job_queue, :schedule, schedule)
+    end
+
+    test "Scheduled tasks are executed repeatedly" do
+      get_next_run_date_mock = [
+        get_next_run_date: fn _cron_expr ->
+          NaiveDateTime.add(NaiveDateTime.utc_now(), 1, :second)
+        end
+      ]
+
+      with_mock Crontab.Scheduler, get_next_run_date_mock do
+        Application.start(:pleroma_job_queue)
+
+        Enum.each(1..3, fn _i ->
+          assert_receive :executing, 1_500
+        end)
+      end
+    end
   end
 end
