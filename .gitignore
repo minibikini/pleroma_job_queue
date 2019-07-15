@@ -25,3 +25,6 @@ pleroma_job_queue-*.tar
 # Dialyzer
 /priv/plts/*.plt
 /priv/plts/*.plt.hash
+
+# Elixir language server
+/.elixir_ls
