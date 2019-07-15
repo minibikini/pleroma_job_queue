@@ -14,7 +14,8 @@ defmodule PleromaJobQueue.Application do
     children = [
       # Starts a worker by calling: PleromaJobQueue.Worker.start_link(arg)
       # {PleromaJobQueue.Worker, arg}
-      PleromaJobQueue.Worker
+      PleromaJobQueue.Worker,
+      PleromaJobQueue.Scheduler
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

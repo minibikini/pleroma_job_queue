@@ -1,3 +1,7 @@
+# PleromaJobQueue: A lightweight job queue
+# Copyright © 2017-2019 Pleroma Authors <https://pleroma.social/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule PleromaJobQueue.State do
   @moduledoc """
   A queue state
