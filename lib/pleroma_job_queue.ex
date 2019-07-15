@@ -33,6 +33,22 @@ defmodule PleromaJobQueue do
   ```elixir
   config :pleroma_job_queue, disabled: true
   ```
+
+  Configure the scheduler like this:
+
+  ```elixir
+  config :pleroma_job_queue, :scheduler,
+    enabled: true,
+    poll_interval: :timer.seconds(10),
+    store: PleromaJobQueue.Scheduler.Store.ETS
+  ```
+
+  * `enabled` - whether the scheduler is enabled (Default: `true`)
+  * `poll_interval` - how often to check for scheduled jobs in milliseconds (Default: `10_000`)
+  * `store` - a module that stores scheduled jobs. It should implement the `PleromaJobQueue.Scheduler.Store` behavior. The default is an in-memory store based on ETS tables: `PleromaJobQueue.Scheduler.Store.ETS`.
+
+  The scheduler allows you to execute jobs at specific time in the future.
+  By default it uses an in-memory ETS table which means the jobs won't be available after restart.
   """
 
   @doc """
@@ -42,10 +58,10 @@ defmodule PleromaJobQueue do
 
   ## Arguments
 
-  - `queue_name` - a queue name(must be specified in the config).
-  - `mod` - a worker module (must have `perform` function).
-  - `args` - a list of arguments for the `perform` function of the worker module.
-  - `priority` - a job priority (`1` by default). The higher number has a lower priority.
+  * `queue_name` - a queue name(must be specified in the config).
+  * `mod` - a worker module (must have `perform` function).
+  * `args` - a list of arguments for the `perform` function of the worker module.
+  * `priority` - a job priority (`1` by default). The higher number has a lower priority.
 
   ## Examples
 
@@ -82,6 +98,59 @@ defmodule PleromaJobQueue do
   end
 
   @doc """
+  Schedules a job to be enqueued at specific time in the future.
+
+  ## Arguments
+
+  * `timestamp` - a unix timestamp in milliseconds
+  * `queue_name` - a queue name (must be specified in the config).
+  * `mod` - a worker module (must have `perform` function).
+  * `args` - a list of arguments for the `perform` function of the worker module.
+  * `priority` - a job priority (`1` by default). The higher number has a lower priority.
+
+  ## Examples
+
+  Enqueue `MyWorker.perform/0` at specific time:
+
+      iex> time = DateTime.to_unix(DateTime.utc_now(), :millisecond)
+      iex> enqueue_at(time, :example_queue, MyWorker)
+      :ok
+  """
+  @spec enqueue_at(pos_integer, atom(), module(), [any()], non_neg_integer()) :: any()
+  def enqueue_at(timestamp, queue_name, mod, args \\ [], priority \\ 1) do
+    if enabled?() do
+      GenServer.cast(
+        PleromaJobQueue.Scheduler,
+        {:enqueue_at, timestamp, queue_name, mod, args, priority}
+      )
+    end
+  end
+
+  @doc """
+  Schedules a job to be enqueued after the given offset in milliseconds.
+
+  ## Arguments
+
+  * `offset` - an offset from now in milliseconds
+  * `queue_name` - a queue name (must be specified in the config).
+  * `mod` - a worker module (must have `perform` function).
+  * `args` - a list of arguments for the `perform` function of the worker module.
+  * `priority` - a job priority (`1` by default). The higher number has a lower priority.
+
+  ## Examples
+
+  Enqueue `MyWorker.perform/0` after 10 seconds:
+
+      iex> enqueue_in(:timer.seconds(10), :example_queue, MyWorker)
+      :ok
+  """
+  @spec enqueue_in(non_neg_integer(), atom(), module(), [any()], non_neg_integer()) :: any()
+  def enqueue_in(offset, queue_name, mod, args \\ [], priority \\ 1) do
+    now = :os.system_time(:millisecond)
+    enqueue_at(now + offset, queue_name, mod, args, priority)
+  end
+
+  @doc """
   Returns a maximum concurrent jobs for a given queue name.
   """
 
@@ -92,5 +161,5 @@ defmodule PleromaJobQueue do
     |> Keyword.get(queue_name, 1)
   end
 
-  defp enabled?(), do: not Application.get_env(:pleroma_job_queue, :disabled, false)
+  def enabled?(), do: not Application.get_env(:pleroma_job_queue, :disabled, false)
 end

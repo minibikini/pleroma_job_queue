@@ -28,6 +28,22 @@ config :pleroma_job_queue, :queues,
   another_queue: 50
 ```
 
+Configure the scheduler like this:
+
+```elixir
+config :pleroma_job_queue, :scheduler,
+  enabled: true,
+  poll_interval: :timer.seconds(10),
+  store: PleromaJobQueue.Scheduler.Store.ETS
+```
+
+* `enabled` - whether the scheduler is enabled (Default: `false`)
+* `poll_interval` - how often to check for scheduled jobs in milliseconds (Default: `10_000`)
+* `store` - a module that stores scheduled jobs. It should implement the `PleromaJobQueue.Scheduler.Store` behavior. The default is an in-memory store based on ETS tables: `PleromaJobQueue.Scheduler.Store.ETS`.
+
+The scheduler allows you to execute jobs at specific time in the future.
+By default it uses an in-memory ETS table which means the jobs won't be available after restart.
+
 ## Usage
 
 [See documentation](http://hexdocs.pm/pleroma_job_queue)
