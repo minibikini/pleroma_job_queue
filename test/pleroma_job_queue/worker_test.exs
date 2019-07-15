@@ -122,7 +122,7 @@ defmodule PleromaJobQueue.WorkerTest do
     test "Scheduled tasks are executed repeatedly" do
       get_next_run_date_mock = [
         get_next_run_date: fn _cron_expr ->
-          NaiveDateTime.add(NaiveDateTime.utc_now(), 1, :second)
+          {:ok, NaiveDateTime.add(NaiveDateTime.utc_now(), 1, :second)}
         end
       ]
 
