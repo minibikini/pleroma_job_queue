@@ -100,6 +100,7 @@ defmodule PleromaJobQueue do
   @doc """
   Schedule a repeating task that will be enqueued with given params according to
   the given cron expression.
+
   In case of invalid cron expression given, an error will be returned.
 
   ## Examples
@@ -117,7 +118,7 @@ defmodule PleromaJobQueue do
   Invalid cron expression:
 
       iex> PleromaJobQueue.schedule("9 9 9 9 9", :queue_name, MyWorker, [:arg1, :arg2], 5)
-      {:error, "Can't parse 9 as day of week}
+      {:error, "Can't parse 9 as day of week"}
 
   """
   @spec schedule(String.t(), atom(), module(), [any()], non_neg_integer()) ::
