@@ -57,10 +57,10 @@ defmodule PleromaJobQueue.Worker do
         {:schedule, %Crontab.CronExpression{} = cron_expr, queue, mod, args, priority},
         state
       ) do
-    next_run_date = Crontab.Scheduler.get_next_run_date(cron_expr)
-    interval = NaiveDateTime.diff(next_run_date, NaiveDateTime.utc_now())
-
-    enqueue_scheduled(queue, mod, args, priority, interval)
+    with {:ok, next_run_date} <- Crontab.Scheduler.get_next_run_date(cron_expr) do
+      interval = NaiveDateTime.diff(next_run_date, NaiveDateTime.utc_now())
+      enqueue_scheduled(queue, mod, args, priority, interval)
+    end
 
     {:noreply, state}
   end
