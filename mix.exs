@@ -35,9 +35,11 @@ defmodule PleromaJobQueue.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:crontab, "~> 1.1"},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.5", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0.0-rc.5", only: [:dev], runtime: false},
+      {:mock, "~> 0.3.3", only: [:test], runtime: false}
     ]
   end
 
