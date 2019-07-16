@@ -98,6 +98,40 @@ defmodule PleromaJobQueue do
   end
 
   @doc """
+  Schedule a repeating task that will be enqueued with given params according to
+  the given cron expression.
+
+  In case of invalid cron expression given, an error will be returned.
+
+  ## Examples
+
+  Enqueue `MyWorker.perform/0` to be repeated every minute:
+
+      iex> PleromaJobQueue.schedule("* * * * *", :queue_name, MyWorker)
+      :ok
+
+  Enqueue `MyWorker.perform(:arg1, :arg2)` with priority 5 to be repeated every Sunday midnight:
+
+      iex> PleromaJobQueue.schedule("0 0 * * 7", :queue_name, MyWorker, [:arg1, :arg2], 5)
+      :ok
+
+  Invalid cron expression:
+
+      iex> PleromaJobQueue.schedule("9 9 9 9 9", :queue_name, MyWorker, [:arg1, :arg2], 5)
+      {:error, "Can't parse 9 as day of week"}
+
+  """
+  @spec schedule(String.t(), atom(), module(), [any()], non_neg_integer()) ::
+          :ok | {:error, String.t()}
+  def schedule(schedule, queue, mod, args \\ [], priority \\ 1) do
+    with {:ok, %Crontab.CronExpression{} = cron_expr} <-
+           Crontab.CronExpression.Parser.parse(schedule) do
+      send(PleromaJobQueue.Worker, {:schedule, cron_expr, queue, mod, args, priority})
+      :ok
+    end
+  end
+
+  @doc """
   Schedules a job to be enqueued at specific time in the future.
 
   ## Arguments
