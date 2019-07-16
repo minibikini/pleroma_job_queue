@@ -13,7 +13,7 @@ defmodule PleromaJobQueue do
   ```elixir
   def deps do
     [
-      {:pleroma_job_queue, "~> 0.2.0"}
+      {:pleroma_job_queue, "~> 0.3.0"}
     ]
   end
   ```
