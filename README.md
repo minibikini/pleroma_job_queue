@@ -1,9 +1,5 @@
 # 🗳 Pleroma Job Queue
 
-[![pipeline status](https://git.pleroma.social/pleroma/pleroma_job_queue/badges/master/pipeline.svg)](https://git.pleroma.social/pleroma/pleroma_job_queue/commits/master)
-[![coverage report](https://git.pleroma.social/pleroma/pleroma_job_queue/badges/master/coverage.svg)](https://git.pleroma.social/pleroma/pleroma_job_queue/commits/master)
-[![Hex pm](https://img.shields.io/hexpm/v/pleroma_job_queue.svg?style=flat)](https://hex.pm/packages/pleroma_job_queue)
-
 > A lightweight job queue
 
 ## Installation
@@ -13,7 +9,7 @@ Add `pleroma_job_queue` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:pleroma_job_queue, "~> 0.2.0"}
+    {:pleroma_job_queue, "~> 0.3.0"}
   ]
 end
 ```
